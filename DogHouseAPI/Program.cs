@@ -1,6 +1,7 @@
-
+using Microsoft.EntityFrameworkCore;
 using DogHouseAPI.Configurations;
 using DogHouseAPI.Services.DogHouseService;
+using DogHouseAPI.Models.Database;
 
 namespace DogHouseAPI
 {
@@ -19,6 +20,10 @@ namespace DogHouseAPI
             builder.Services.AddScoped<IDogHouseService, DogHouseService>();
 
             builder.Services.Configure<AppInfoOptions>(builder.Configuration.GetSection(AppInfoOptions.Position));
+
+            builder.Services.AddDbContext<DogHouseDbContext>(o =>             {
+                o.UseSqlServer(builder.Configuration.GetConnectionString("DogHouseDBConnection"));
+            });
 
             var app = builder.Build();
 
