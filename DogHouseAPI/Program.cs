@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DogHouseAPI.Configurations;
 using DogHouseAPI.Services.DogHouseService;
 using DogHouseAPI.Models.Database;
+using DogHouseAPI.API;
 
 namespace DogHouseAPI
 {
@@ -14,10 +15,11 @@ namespace DogHouseAPI
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IDogHouseService, DogHouseService>();
+            
+            builder.Services.AddTransient<IDogHouseRepository, DogHouseRepository>();
 
             builder.Services.Configure<AppInfoOptions>(builder.Configuration.GetSection(AppInfoOptions.Position));
 

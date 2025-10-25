@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using DogHouseAPI.Configurations;
 using DogHouseAPI.Models;
 using DogHouseAPI.Services.DogHouseService;
+using DogHouseAPI.Models.DTO;
 
 namespace DogHouseAPI.Controllers
 {
@@ -28,9 +29,32 @@ namespace DogHouseAPI.Controllers
         }
 
         [HttpGet, Route("/dogs")]
-        public IEnumerable<Dog> GetDogs()
+        public async Task<IEnumerable<Dog>> GetDogs()
         {
-            return _dogHouseService.Get().ToList();
+            var dogs = await _dogHouseService.Get();
+            return dogs;
+        }
+
+        [HttpPost, Route("/dog")]
+        public async Task<ActionResult<Dog>> AddDog([FromBody] CreateDogDto dog)
+        {
+            if (!ModelState.IsValid)
+            { 
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var dogAdded = await _dogHouseService.AddDog(dog);
+
+                return CreatedAtAction(nameof(AddDog), new { id = dogAdded.Id }, dogAdded);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Error occurred while adding a new dog: {ex.Message}";
+                _logger.LogError(ex, message);
+                return BadRequest(message);
+            }
         }
     }
 }

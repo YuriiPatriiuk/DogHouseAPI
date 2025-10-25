@@ -1,19 +1,71 @@
 ﻿using DogHouseAPI.Models;
+using DogHouseAPI.API;
+using DogHouseAPI.Models.DTO;
 
 namespace DogHouseAPI.Services.DogHouseService
 {
     public class DogHouseService : IDogHouseService
     {
-        public IEnumerable<Dog> Get()
+        private readonly IDogHouseRepository _dogHouseRepository;
+        private readonly ILogger<DogHouseService> _logger;
+        public DogHouseService(IDogHouseRepository dogHouseRepository, ILogger<DogHouseService> logger)
         {
-            return new List<Dog>
+            _dogHouseRepository = dogHouseRepository;
+            _logger = logger;
+        }
+        public Task<IEnumerable<Dog>> Get()
+        {
+            _logger.LogInformation("Get all dogs from the repository.");
+            return _dogHouseRepository.GetAll();
+        }
+        public async Task<Dog> AddDog(CreateDogDto dog)
+        {
+            _ = dog ?? throw new ArgumentNullException(nameof(dog));
+            _logger.LogInformation($"Start adding a new dog");
+
+            await ValidateDogParametrs(dog);
+
+            var newDog = new Dog
             {
-                new Dog { Id = 1, Name = "Buddy", Color = "Brown", TailLength = 15.5f, Weight = 30.0f },
-                new Dog { Id = 2, Name = "Max", Color = "Black", TailLength = 12.0f, Weight = 25.0f },
-                new Dog { Id = 3, Name = "Bella", Color = "White", TailLength = 10.0f, Weight = 20.0f },
-                new Dog { Id = 4, Name = "Lucy", Color = "Golden", TailLength = 14.0f, Weight = 28.0f },
-                new Dog { Id = 5, Name = "Charlie", Color = "Gray", TailLength = 13.5f, Weight = 22.0f }
+                Name = dog.Name,
+                Color = dog.Color,
+                TailLength = dog.TailLength,
+                Weight = dog.Weight
             };
+
+            try
+            {
+               var addedDog = await _dogHouseRepository.AddDog(newDog);
+                _logger.LogInformation($"Adding a new dog is succesfull");
+                return addedDog;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while adding a new dog to the repository.");
+                throw;
+            }
+
+        }
+        public async Task ValidateDogParametrs(CreateDogDto dog)
+        {
+            if (await IsDogExist(dog.Name))
+            {
+                throw new Exception($"Dog with name {dog.Name} already exists.");
+            }
+            if (IsParametrsRight(dog))
+            {
+                throw new Exception($"Dog parameters are not valid.");
+            }
+        }
+
+        public Task<bool> IsDogExist(string name)
+        {
+            return _dogHouseRepository.IsDogExist(name);
+        }
+
+        public bool IsParametrsRight(CreateDogDto dog)
+        {
+            return (dog.TailLength < 0 || dog.Weight < 0);
         }
     }
 }
