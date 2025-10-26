@@ -28,10 +28,10 @@ namespace DogHouseAPI.Controllers
             return Ok(_version);
         }
 
-        [HttpGet, Route("/dogs")]
-        public async Task<IEnumerable<Dog>> GetDogs()
+        [HttpGet, Route("/dogs")] 
+        public async Task<IEnumerable<DogResponseDto>> GetDogs([FromQuery] DogSearchAttributesDto parametrs)
         {
-            var dogs = await _dogHouseService.Get();
+            var dogs = await _dogHouseService.Get(parametrs);
             return dogs;
         }
 

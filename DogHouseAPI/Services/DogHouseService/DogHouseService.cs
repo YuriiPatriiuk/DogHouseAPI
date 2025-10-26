@@ -1,6 +1,7 @@
 ﻿using DogHouseAPI.Models;
 using DogHouseAPI.API;
 using DogHouseAPI.Models.DTO;
+using DogHouseAPI.Mapping;
 
 namespace DogHouseAPI.Services.DogHouseService
 {
@@ -13,10 +14,12 @@ namespace DogHouseAPI.Services.DogHouseService
             _dogHouseRepository = dogHouseRepository;
             _logger = logger;
         }
-        public Task<IEnumerable<Dog>> Get()
+        public async Task<IEnumerable<DogResponseDto>> Get(DogSearchAttributesDto parametrs)
         {
-            _logger.LogInformation("Get all dogs from the repository.");
-            return _dogHouseRepository.GetAll();
+            _logger.LogInformation("Get dogs from the repository.");
+            var dogs = await _dogHouseRepository.GetAllAsync(parametrs);
+            var dogDtos = dogs.ToDto();
+            return dogDtos;
         }
         public async Task<Dog> AddDog(CreateDogDto dog)
         {
@@ -25,17 +28,11 @@ namespace DogHouseAPI.Services.DogHouseService
 
             await ValidateDogParametrs(dog);
 
-            var newDog = new Dog
-            {
-                Name = dog.Name,
-                Color = dog.Color,
-                TailLength = dog.TailLength,
-                Weight = dog.Weight
-            };
+            var newDog = dog.ToDog();
 
             try
             {
-               var addedDog = await _dogHouseRepository.AddDog(newDog);
+               var addedDog = await _dogHouseRepository.AddDogAsync(newDog);
                 _logger.LogInformation($"Adding a new dog is succesfull");
                 return addedDog;
             }
@@ -46,6 +43,7 @@ namespace DogHouseAPI.Services.DogHouseService
             }
 
         }
+
         public async Task ValidateDogParametrs(CreateDogDto dog)
         {
             if (await IsDogExist(dog.Name))
@@ -57,10 +55,9 @@ namespace DogHouseAPI.Services.DogHouseService
                 throw new Exception($"Dog parameters are not valid.");
             }
         }
-
-        public Task<bool> IsDogExist(string name)
+        public async Task<bool> IsDogExist(string name)
         {
-            return _dogHouseRepository.IsDogExist(name);
+            return await _dogHouseRepository.IsDogExist(name);
         }
 
         public bool IsParametrsRight(CreateDogDto dog)
