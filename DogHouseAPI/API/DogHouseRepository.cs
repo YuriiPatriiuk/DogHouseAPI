@@ -17,10 +17,10 @@ namespace DogHouseAPI.API
         public async Task<IEnumerable<Dog>> GetAllAsync(DogSearchAttributesDto parametrs)
         {
             IQueryable<Dog> query = _dbContext.Dogs;
-
             query = ApplyFilters(query, parametrs);
 
-            //pagination    
+            int dogsToSkip = (parametrs.PageNumber - 1) * parametrs.PageSize;
+            query = query.Skip(dogsToSkip).Take(parametrs.PageSize);
 
             return await query.ToListAsync();
         }

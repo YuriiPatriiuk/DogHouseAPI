@@ -17,9 +17,20 @@ namespace DogHouseAPI.Services.DogHouseService
         public async Task<IEnumerable<DogResponseDto>> Get(DogSearchAttributesDto parametrs)
         {
             _logger.LogInformation("Get dogs from the repository.");
-            var dogs = await _dogHouseRepository.GetAllAsync(parametrs);
-            var dogDtos = dogs.ToDto();
-            return dogDtos;
+            
+            ValidateSearchParametrs(parametrs);
+
+            try
+            {
+                var dogs = await _dogHouseRepository.GetAllAsync(parametrs);
+                var dogDtos = dogs.ToDto();
+                return dogDtos;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting dogs from the repository.");
+                throw;
+            }
         }
         public async Task<Dog> AddDog(CreateDogDto dog)
         {
@@ -55,11 +66,17 @@ namespace DogHouseAPI.Services.DogHouseService
                 throw new Exception($"Dog parameters are not valid.");
             }
         }
+        public void ValidateSearchParametrs(DogSearchAttributesDto parametrs)
+        {
+            if(parametrs.PageNumber <= 0 || parametrs.PageSize <= 0)
+            {
+                throw new Exception("PageNumber and PageSize must be greater than zero.");
+            }
+        }
         public async Task<bool> IsDogExist(string name)
         {
             return await _dogHouseRepository.IsDogExist(name);
         }
-
         public bool IsParametrsRight(CreateDogDto dog)
         {
             return (dog.TailLength < 0 || dog.Weight < 0);
