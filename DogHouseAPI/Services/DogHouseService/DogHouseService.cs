@@ -18,10 +18,9 @@ namespace DogHouseAPI.Services.DogHouseService
         {
             _logger.LogInformation("Get dogs from the repository.");
             
-            ValidateSearchParametrs(parametrs);
-
             try
             {
+                ValidateSearchParametrs(parametrs);
                 var dogs = await _dogHouseRepository.GetAllAsync(parametrs);
                 var dogDtos = dogs.ToDto();
                 return dogDtos;
@@ -36,14 +35,14 @@ namespace DogHouseAPI.Services.DogHouseService
         {
             _ = dog ?? throw new ArgumentNullException(nameof(dog));
             _logger.LogInformation($"Start adding a new dog");
-
-            await ValidateDogParametrs(dog);
-
-            var newDog = dog.ToDog();
-
+            
             try
             {
-               var addedDog = await _dogHouseRepository.AddDogAsync(newDog);
+                await ValidateDogParametrs(dog);
+    
+                var newDog = dog.ToDog();
+            
+                var addedDog = await _dogHouseRepository.AddDogAsync(newDog);
                 _logger.LogInformation($"Adding a new dog is succesfull");
                 return addedDog;
             }
@@ -68,7 +67,23 @@ namespace DogHouseAPI.Services.DogHouseService
         }
         public void ValidateSearchParametrs(DogSearchAttributesDto parametrs)
         {
-            if(parametrs.PageNumber <= 0 || parametrs.PageSize <= 0)
+            if(parametrs.Attribute != null)
+            {
+                var validAttributes = new List<string> { "name", "color", "taillength", "weight" };
+                if (!validAttributes.Contains(parametrs.Attribute.ToLower()))
+                {
+                    throw new Exception($"Invalid attribute: {parametrs.Attribute}.");
+                }
+            }
+            if (parametrs.Order != null)
+            {
+                var validOrders = new List<string> { "asc", "desc" };
+                if (!validOrders.Contains(parametrs.Order.ToLower()))
+                {
+                    throw new Exception($"Invalid order: {parametrs.Order}.");
+                }
+            }
+            if (parametrs.PageNumber <= 0 || parametrs.PageSize <= 0)
             {
                 throw new Exception("PageNumber and PageSize must be greater than zero.");
             }

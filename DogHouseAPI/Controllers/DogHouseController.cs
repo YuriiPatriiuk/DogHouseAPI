@@ -29,18 +29,18 @@ namespace DogHouseAPI.Controllers
         }
 
         [HttpGet, Route("/dogs")] 
-        public async Task<IEnumerable<DogResponseDto>> GetDogs([FromQuery] DogSearchAttributesDto parametrs)
+        public async Task<ActionResult<IEnumerable<DogResponseDto>>> GetDogs([FromQuery] DogSearchAttributesDto parametrs)
         {
             try
             {
                 var dogs = await _dogHouseService.Get(parametrs);
-                return dogs;
+                return Ok(dogs);
             }
             catch (Exception ex)
             {
                 var message = $"Error occurred while retrieving dogs: {ex.Message}";
                 _logger.LogError(ex, message);
-                return Enumerable.Empty<DogResponseDto>();
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
