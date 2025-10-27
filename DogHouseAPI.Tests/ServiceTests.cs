@@ -146,7 +146,7 @@ public class ServiceTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.EqualTo(addedDog));
+        Assert.That(result, Is.InstanceOf<DogResponseDto>());
 
         _dogRepositoryMock.Verify(r => r.AddDogAsync(
         It.Is<Dog>(d =>

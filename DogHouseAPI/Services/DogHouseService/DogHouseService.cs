@@ -31,7 +31,7 @@ namespace DogHouseAPI.Services.DogHouseService
                 throw;
             }
         }
-        public async Task<Dog> AddDog(CreateDogDto dog)
+        public async Task<DogResponseDto> AddDog(CreateDogDto dog)
         {
             _ = dog ?? throw new ArgumentNullException(nameof(dog));
             _logger.LogInformation($"Start adding a new dog");
@@ -43,8 +43,8 @@ namespace DogHouseAPI.Services.DogHouseService
                 var newDog = dog.ToDog();
             
                 var addedDog = await _dogHouseRepository.AddDogAsync(newDog);
-                _logger.LogInformation($"Adding a new dog is succesfull");
-                return addedDog;
+                _logger.LogInformation($"Adding a new dog is successful");
+                return addedDog.ToDto();
             }
             catch(Exception ex)
             {

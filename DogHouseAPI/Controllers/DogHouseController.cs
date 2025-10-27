@@ -47,7 +47,7 @@ namespace DogHouseAPI.Controllers
         }
 
         [HttpPost, Route("/dog")]
-        public async Task<ActionResult<Dog>> AddDog([FromBody] CreateDogDto dog)
+        public async Task<ActionResult<DogResponseDto>> AddDog([FromBody] CreateDogDto dog)
         {
             if (!ModelState.IsValid)
             { 
@@ -62,7 +62,7 @@ namespace DogHouseAPI.Controllers
             {
                 var dogAdded = await _dogHouseService.AddDog(dog);
 
-                return CreatedAtAction(nameof(AddDog), new { id = dogAdded.Id }, dogAdded);
+                return CreatedAtAction(nameof(AddDog), new { name = dogAdded.Name }, dogAdded);
             }
             catch (Exception ex)
             {

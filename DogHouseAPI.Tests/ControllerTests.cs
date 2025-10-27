@@ -55,7 +55,7 @@ public class ControllerTests
     {
         // Arrange
         var createDto = new CreateDogDto { Name = "Buddy" };
-        var createdDog = new Dog { Id = 1, Name = "Buddy" };
+        var createdDog = new DogResponseDto { Name = "Buddy" };
         _dogHouseServiceMock
             .Setup(s => s.AddDog(createDto))
             .ReturnsAsync(createdDog);
@@ -66,10 +66,9 @@ public class ControllerTests
         // Assert
         Assert.That(result.Result, Is.InstanceOf<CreatedAtActionResult>());
         var createdAtActionResult = result.Result as CreatedAtActionResult;
-        Assert.That(createdAtActionResult.Value, Is.InstanceOf<Dog>());
-        var returnedDog = createdAtActionResult.Value as Dog;
+        Assert.That(createdAtActionResult.Value, Is.InstanceOf<DogResponseDto>());
+        var returnedDog = createdAtActionResult.Value as DogResponseDto;
 
-        Assert.That(returnedDog.Id, Is.EqualTo(createdDog.Id));
         Assert.That(returnedDog.Name, Is.EqualTo(createdDog.Name));
 
     }
