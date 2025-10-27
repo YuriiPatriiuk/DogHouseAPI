@@ -51,6 +51,10 @@ namespace DogHouseAPI.Controllers
             { 
                 return BadRequest(ModelState);
             }
+            if (dog == null)
+            {
+                return BadRequest("Dog data is null.");
+            }
 
             try
             {

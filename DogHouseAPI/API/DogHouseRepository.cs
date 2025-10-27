@@ -54,7 +54,7 @@ namespace DogHouseAPI.API
                 case "color":
                     query = orderParametr == "desc" ? query.OrderByDescending(d => d.Color) : query.OrderBy(d => d.Color);
                     break;
-                case "tailLength":
+                case "taillength":
                     query = orderParametr == "desc" ? query.OrderByDescending(d => d.TailLength) : query.OrderBy(d => d.TailLength);
                     break;
                 case "weight":
