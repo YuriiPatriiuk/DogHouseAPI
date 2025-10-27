@@ -4,11 +4,13 @@ using DogHouseAPI.Configurations;
 using DogHouseAPI.Models;
 using DogHouseAPI.Services.DogHouseService;
 using DogHouseAPI.Models.DTO;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DogHouseAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [EnableRateLimiting("Fixed")]
     public class DogHouseController : ControllerBase
     {
         private readonly IDogHouseService _dogHouseService;

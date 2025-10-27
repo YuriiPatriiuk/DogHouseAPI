@@ -3,6 +3,7 @@ using DogHouseAPI.Configurations;
 using DogHouseAPI.Services.DogHouseService;
 using DogHouseAPI.Models.Database;
 using DogHouseAPI.API;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DogHouseAPI
 {
@@ -27,6 +28,18 @@ namespace DogHouseAPI
                 o.UseSqlServer(builder.Configuration.GetConnectionString("DogHouseDBConnection"));
             });
 
+            var raceLimiterConfig = builder.Configuration.GetSection("RateLimiting");
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.AddFixedWindowLimiter(policyName: raceLimiterConfig["PolicyName"]!, configureOptions =>
+                {
+                    configureOptions.PermitLimit = int.Parse(raceLimiterConfig["PermitLimit"]!);
+                    configureOptions.Window = TimeSpan.Parse(raceLimiterConfig["Window"]!);
+                    configureOptions.QueueLimit = int.Parse(raceLimiterConfig["QueueLimit"]!);
+                });
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -40,6 +53,7 @@ namespace DogHouseAPI
 
             app.UseAuthorization();
 
+            app.UseRateLimiter();
 
             app.MapControllers();
 
