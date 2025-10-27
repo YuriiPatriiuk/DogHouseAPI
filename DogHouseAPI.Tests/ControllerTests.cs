@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Moq;
 using DogHouseAPI.Models.DTO;
-using System.Net.WebSockets;
 using Microsoft.AspNetCore.Mvc;
 using DogHouseAPI.Models;
 
@@ -49,7 +48,7 @@ public class ControllerTests
     }
 
     #endregion
-
+        
     #region AddDog Tests
     [Test]
     public async Task AddDog_ReturnsCreatedDog_WhenSuccessful()
@@ -73,6 +72,18 @@ public class ControllerTests
         Assert.That(returnedDog.Id, Is.EqualTo(createdDog.Id));
         Assert.That(returnedDog.Name, Is.EqualTo(createdDog.Name));
 
+    }
+
+    [Test]
+    public async Task AddDog_ThrowsBadRequest_WhenDogIsNull()
+    {
+        // Act
+        var result = await _controller.AddDog(null);
+     
+        // Assert
+        Assert.That(result.Result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result.Result as BadRequestObjectResult;
+        Assert.That(badRequestResult.Value.ToString(), Does.Contain("Dog data is null."));
     }
 
     [Test]
